@@ -1,0 +1,25 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t jlgoh/react-test -f ./client/Dockerfile.dev ./client
+  #Enter other installation of test environments for e.g. server, worker
+
+script:
+  - docker run -e CI=true jlgoh/react-test npm run test
+  #Enter other installation of test scripts for e.g. server, worker
+
+after_success:
+  - docker build -t jlgoh/multi-client ./client
+  - docker build -t jlgoh/multi-nginx ./nginx
+  - docker build -t jlgoh/multi-server ./server
+  - docker build -t jlgoh/multi-worker ./worker
+
+  #Login to CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Take those images and push to Docker Hub
+  - docker push jlgoh/multi-client
+  - docker push jlgoh/multi-nginx
+  - docker push jlgoh/multi-server
+  - docker push jlgoh/multi-worker

@@ -12,7 +12,7 @@ services:
       dockerfile: Dockerfile.dev
       context: ./nginx
     ports:
-      - "3050:80"
+      - "3050:80" #Access frontend in browser through 3050, this will be routed to 80 which will be routed to 3000 or 5000 by NGINX
   api:
     depends_on:
       - postgres

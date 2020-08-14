@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: postgres
+  template:
+    metadata:
+      labels:
+        component: postgres
+    spec:
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: database-persistent-volume-claim # allocate for storage
+      containers:
+        - name: postgres
+          image: postgres # from public repo on Docker Hub
+          env:
+            - name: POSTGRES_PASSWORD #override postgres default pw
+              valueFrom:
+                secretKeyRef:
+                  name: pgpassword
+                  key: PGPASSWORD
+          ports:
+            - containerPort: 5432
+          volumeMounts: #after we get access to storage
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data #default data directory postgres use for data storage
+              subPath: postgres # this is specific to postgres, mountPath will be nested in this folder. not impt.
+

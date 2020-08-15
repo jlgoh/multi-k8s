@@ -14,7 +14,7 @@ before_install:
   - gcloud config set project multi-k8s-286407 #GC project ID
   - gcloud config set compute/zone asia-southeast2-b #compute zone on GC K8s
   - gcloud container clusters get-credentials multi-k8s-cluster #GC k8s cluster name
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin #Login to Docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin #Login to Docker CLI, From env variables
   - docker build -t jlgoh/react-test -f ./client/Dockerfile.dev ./client #tests file located there, and only the dev file as it contains the tests
 
 script:

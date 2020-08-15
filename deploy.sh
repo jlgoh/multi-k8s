@@ -10,7 +10,7 @@ docker push jlgoh/multi-client:$SHA
 docker push jlgoh/multi-server:$SHA 
 docker push jlgoh/multi-worker:$SHA 
 #Apply all configs in the k8s folder
-kubectl appply -f k8s
+kubectl apply -f k8s
 #Imperatively set latest images on each deployment
 kubectl set image deployments/server-deployment server=jlgoh/multi-server:$SHA 
 kubectl set image deployments/client-deployment client=jlgoh/multi-client:$SHA 

@@ -1,0 +1,9 @@
+sudo: required
+services:
+  - docker
+before_install:
+  - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account.json.enc -out service-account.json -d # auth for GC SDK to be stored on Travis
+  - curl https://sdk.cloud.google.com | bash >/dev/null; #download GC SDK,right side pipe install locally on our instance assigned by travis
+  - source $HOME/google-cloud-sdk/path.bash.inc # setup GC SDK
+  - gcloud components update kubectl #install kubectl CLI to use kubectl commands
+  - gcloud auth activate-service-account --key-file service-account.json # authorization with GC SDK. simliar to IAM on AWS.

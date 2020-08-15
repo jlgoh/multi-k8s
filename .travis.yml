@@ -1,9 +1,28 @@
 sudo: required
 services:
   - docker
+env:
+  global:
+    - SHA=$(git rev-parse HEAD) #Git SHA Commit Hash
+    - CLOUDSDK_CORE_DISABLE_PROMPTS=1
 before_install:
   - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account.json.enc -out service-account.json -d # auth for GC SDK to be stored on Travis
   - curl https://sdk.cloud.google.com | bash >/dev/null; #download GC SDK,right side pipe install locally on our instance assigned by travis
   - source $HOME/google-cloud-sdk/path.bash.inc # setup GC SDK
   - gcloud components update kubectl #install kubectl CLI to use kubectl commands
   - gcloud auth activate-service-account --key-file service-account.json # authorization with GC SDK. simliar to IAM on AWS.
+  - gcloud config set project multi-k8s-286407 #GC project ID
+  - gcloud config set compute/zone asia-southeast2-b #compute zone on GC K8s
+  - gcloud container clusters get-credentials multi-k8s-cluster #GC k8s cluster name
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin #Login to Docker CLI
+  - docker build -t jlgoh/react-test -f ./client/Dockerfile.dev ./client #tests file located there, and only the dev file as it contains the tests
+
+script:
+  - docker run -e CI=true jlgoh/react-test npm run test
+  #Enter other run of test scripts for e.g. server, worker
+
+deploy:
+  provider: script #custom
+  script: bash ./deploy.sh
+  on:
+    branch: master
